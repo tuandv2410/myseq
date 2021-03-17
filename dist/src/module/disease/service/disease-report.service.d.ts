@@ -1,0 +1,36 @@
+import { Repository } from 'typeorm';
+import { AutoMapper } from 'nestjsx-automapper';
+import { DiseaseReportEntity } from 'src/entities/disease/disease-report/disease-report.entity';
+import { DiseaseReportDto, DiseaseReportTransDto } from '../dto/disease-report/disease-report.dto';
+import { FilterDiseaseReportDto } from '../dto/disease-report/filter-disease-report.dto';
+import { UserDto } from 'src/module/user/dto/user.dto';
+import { CreateDiseaseReportDto } from '../dto/disease-report/create-disease-report.dto';
+import { UpdateDiseaseReportDto } from '../dto/disease-report/update-disease-report.dto';
+import { ResultInterface } from 'src/interfaces/result.interface';
+import { GenotypeDiseaseReportEntity } from 'src/entities/disease/genotype-disease-report/genotype-disease-report.entity';
+import { CreateGenotypeDiseaseReportDto } from '../dto/genotype-disease-report/create-genotype-disease-report.dto';
+import { GenotypeDiseaseReportDto } from '../dto/genotype-disease-report/genotype-disease-report.dto';
+import { DiseaseReportTransEntity } from 'src/entities/disease/disease-report/disease-report-trans.entity';
+import { language } from 'src/enum/language.enum';
+import { FilterGenotypeDiseaseReportDto } from '../dto/genotype-disease-report/filter-genotype-disease-report.dto';
+import { DiseaseTempEntity } from 'src/entities/disease/disease-temp/disease-temp.entity';
+import { UserEntity } from 'src/entities/auth/user.entity';
+export declare class DiseaseReportService {
+    private diseaseReportRepo;
+    private diseaseReportTransRepo;
+    private genotypeDiseaseReportRepo;
+    private diseaseTempRepo;
+    private userRepo;
+    private mapper;
+    private logger;
+    constructor(diseaseReportRepo: Repository<DiseaseReportEntity>, diseaseReportTransRepo: Repository<DiseaseReportTransEntity>, genotypeDiseaseReportRepo: Repository<GenotypeDiseaseReportEntity>, diseaseTempRepo: Repository<DiseaseTempEntity>, userRepo: Repository<UserEntity>, mapper: AutoMapper);
+    getAll(userId: string, filterDto: FilterDiseaseReportDto, user: UserDto): Promise<DiseaseReportDto[]>;
+    getById(userId: string, id: string, filterDto: FilterDiseaseReportDto, user: UserDto): Promise<DiseaseReportDto>;
+    getTransById(id: string, language: language, user: UserDto): Promise<DiseaseReportTransDto>;
+    create(userId: string, createDto: CreateDiseaseReportDto, user: UserDto): Promise<DiseaseReportDto>;
+    update(userId: string, id: string, updateDto: UpdateDiseaseReportDto, user: UserDto): Promise<DiseaseReportDto>;
+    approve(userId: string, id: string, user: UserDto): Promise<DiseaseReportDto>;
+    delete(userId: string, id: string, user: UserDto): Promise<ResultInterface>;
+    createGenotype(diseaseReportId: string, createDto: CreateGenotypeDiseaseReportDto, user: UserDto): Promise<GenotypeDiseaseReportDto>;
+    getAllGenotypeDiseaseReport(diseaseReportId: string, filterDto: FilterGenotypeDiseaseReportDto, user: UserDto): Promise<GenotypeDiseaseReportDto[]>;
+}
