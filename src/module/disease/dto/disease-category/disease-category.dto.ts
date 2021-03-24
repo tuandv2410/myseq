@@ -1,10 +1,9 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { isArray } from "class-validator";
-import { AutoMap } from "nestjsx-automapper";
-import { language } from "src/enum/language.enum";
+import { ApiProperty } from '@nestjs/swagger';
+import { isArray } from 'class-validator';
+import { AutoMap } from 'nestjsx-automapper';
+import { language } from 'src/enum/language.enum';
 
 export class DiseaseCategoryTransDto {
-
   @AutoMap()
   @ApiProperty()
   id: string;
@@ -23,14 +22,11 @@ export class DiseaseCategoryTransDto {
 }
 
 export class DiseaseCategoryDto {
-
   @AutoMap()
   @ApiProperty()
   id: string;
 
-  @AutoMap(()=>DiseaseCategoryTransDto)
-  @ApiProperty({type:DiseaseCategoryTransDto, isArray:true })
-  diseaseCategoryTrans: DiseaseCategoryTransDto[]
+  @AutoMap(() => DiseaseCategoryTransDto)
+  @ApiProperty({ type: DiseaseCategoryTransDto, isArray: true })
+  diseaseCategoryTrans: DiseaseCategoryTransDto[];
 }
-
-

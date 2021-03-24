@@ -31,6 +31,7 @@ export class AuthService {
       userId: user.id,
       account: user.account,
       ...token,
+      language: user.language
     };
   }
 

@@ -6,6 +6,7 @@ import { role } from "src/enum/role.enum";
 import { DiseaseReportEntity } from "../disease/disease-report/disease-report.entity";
 import { DrugReportEntity } from "../drug/drug-report/drug-report.entity";
 import { NutritionReportEntity } from "../nutrition/nutrition-report/nutrition-report.entity";
+import { language } from "../../enum/language.enum";
 
 @Entity('user')
 @Unique(['account'])
@@ -54,6 +55,12 @@ export class UserEntity extends BaseEntity {
         nullable: false,
     })
     role: role;
+
+    @AutoMap()
+    @Column({
+        nullable: false,
+    })
+    language: language
 
     @AutoMap(()=>DiseaseReportEntity)
     @OneToMany(type => DiseaseReportEntity, diseaseReport => diseaseReport.user)

@@ -4,6 +4,7 @@ import { ApiBearerAuth, ApiCreatedResponse, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { LoginStatus } from 'src/interfaces/login-status.interface';
 import { ResultInterface } from 'src/interfaces/result.interface';
+import { language } from '../../enum/language.enum';
 import { UserDto } from '../user/dto/user.dto';
 import { AuthService } from './auth.service';
 import { ChangePasswordDto } from './dto/change-password.dto';
@@ -65,7 +66,8 @@ export class AuthController {
             userId: "",
             username: "",
             accessToken: "",
-            expiresIn: ""
+            expiresIn: "",
+            language: language.en,
         }
         // response.setHeader('Set-Cookie', await this.authService.getCookieForLogOut());
         // return response.sendStatus(200);
