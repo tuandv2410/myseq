@@ -9,7 +9,7 @@ import { UserDto } from '../../user/dto/user.dto';
 import { CreateDiseaseCategoryDto } from '../dto/disease-category/create-disease-category.dto';
 import { DiseaseCategoryDto } from '../dto/disease-category/disease-category.dto';
 import { FilterDiseaseCategoryDto } from '../dto/disease-category/filter-disease-category.dto';
-import { ReportListDto } from '../dto/disease-category/report-list.dto';
+import { ReportListDiseaseDto } from '../dto/disease-category/report-list.dto';
 import { UpdateDiseaseCategoryDto } from '../dto/disease-category/update-disease-category.dto';
 import { DiseaseCategoryService } from '../service/disease-category.service';
 
@@ -95,8 +95,7 @@ export class DiseaseCategoryController {
 
   @ApiBearerAuth()
   @ApiOkResponse({
-    type: ReportListDto,
-    isArray: true,
+    type: ReportListDiseaseDto,
   })
   @UseGuards(AuthGuard('jwt'),RolesGuard)
   @Roles('user', 'expert', 'admin')
@@ -106,7 +105,7 @@ export class DiseaseCategoryController {
     @Param('disease_category_id') diseaseReportId: string,
     @Query() filterDto: FilterDiseaseCategoryDto,
     @User() user: UserDto,
-  ): Promise<ReportListDto> {
+  ): Promise<ReportListDiseaseDto> {
     console.log("Get");
     const result = await this.diseaseCategoryService.getDiseaseReportListByCategory(userId, diseaseReportId,filterDto, user)
     return result;

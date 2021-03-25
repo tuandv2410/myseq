@@ -29,6 +29,14 @@ export class DiseaseReportDto {
   @AutoMap()
   @ApiProperty()
   id: string;
+
+  @AutoMap()
+  @ApiProperty()
+  new: boolean;
+
+  @AutoMap()
+  @ApiProperty()
+  approve: boolean;
   
   @AutoMap()
   @ApiProperty({type: DiseaseReportTransDto, isArray:true})

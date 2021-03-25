@@ -1,4 +1,4 @@
-import { BaseEntity, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { BaseEntity, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, Column } from 'typeorm';
 import { AutoMap } from "nestjsx-automapper";
 import { DrugTempEntity } from "../drug-temp/drug-temp.entity";
 import { GenotypeDrugReportEntity } from "../genotype-drug-report/genotype-drug-report.entity";
@@ -10,6 +10,18 @@ export class DrugReportEntity extends BaseEntity {
   @AutoMap()
   @PrimaryGeneratedColumn("uuid")
   id: string;
+
+  @AutoMap()
+  @Column({
+    nullable: false,
+  })
+  new : boolean
+
+  @AutoMap()
+  @Column({
+    nullable: false,
+  })
+  approve : boolean
 
   @ManyToOne(type => DrugTempEntity, drugTemp => drugTemp.drugReports, {
       cascade: true

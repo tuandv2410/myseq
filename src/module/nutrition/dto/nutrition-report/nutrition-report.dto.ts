@@ -29,6 +29,14 @@ export class NutritionReportDto {
   @AutoMap()
   @ApiProperty()
   id: string;
+
+  @AutoMap()
+  @ApiProperty()
+  new: boolean;
+
+  @AutoMap()
+  @ApiProperty()
+  approve: boolean;
   
   @AutoMap()
   @ApiProperty({type: NutritionReportTransDto, isArray:true})

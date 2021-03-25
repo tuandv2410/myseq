@@ -39,7 +39,7 @@ export class DrugTempService {
       mapFrom(s=>s.drugTempTrans)
     )
     this.mapper.createMap(GenotypeDrugTempEntity, GenotypeDrugTempDto).forMember(
-      d=>d.GenotypeDrugReportTrans,
+      d=>d.genotypeDrugReportTrans,
       mapFrom(s=>s.genotypeDrugTempTrans)
     )
   }

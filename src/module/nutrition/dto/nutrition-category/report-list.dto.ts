@@ -34,7 +34,7 @@ export class ReportListNutritionTemp{
   @ApiProperty()
   level: number;
 }
-export class ReportListDto{
+export class ReportListNutritionDto{
   @ApiProperty()
   nutritionCategoryTrans: ReportListNutritionCategoryTrans;
 

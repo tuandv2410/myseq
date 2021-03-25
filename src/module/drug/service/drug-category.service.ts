@@ -13,7 +13,7 @@ import { FilterDrugCategoryDto } from '../dto/drug-category/filter-drug-category
 import { language } from 'src/enum/language.enum';
 import { DrugTempEntity } from 'src/entities/drug/drug-temp/drug-temp.entity';
 import { DrugReportEntity } from 'src/entities/drug/drug-report/drug-report.entity';
-import { ReportListDrugTemp, ReportListDto } from '../dto/drug-category/report-list.dto';
+import { ReportListDrugTemp, ReportListDrugDto } from '../dto/drug-category/report-list.dto';
 
 @Injectable()
 export class DrugCategoryService {
@@ -90,7 +90,7 @@ export class DrugCategoryService {
     drugCategoryId: string,
     filterDto: FilterDrugCategoryDto,
     user: UserDto
-  ): Promise<ReportListDto> {
+  ): Promise<ReportListDrugDto> {
     try{
       const drugCategory = await this.getById(drugCategoryId, filterDto, user)
       let ans: ReportListDrugTemp[] = [];

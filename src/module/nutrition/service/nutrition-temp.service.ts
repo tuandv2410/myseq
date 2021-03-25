@@ -39,7 +39,7 @@ export class NutritionTempService {
       mapFrom(s=>s.nutritionTempTrans)
     )
     this.mapper.createMap(GenotypeNutritionTempEntity, GenotypeNutritionTempDto).forMember(
-      d=>d.GenotypeNutritionReportTrans,
+      d=>d.genotypeNutritionReportTrans,
       mapFrom(s=>s.genotypeNutritionTempTrans)
     )
   }

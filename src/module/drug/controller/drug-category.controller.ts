@@ -9,7 +9,7 @@ import { UserDto } from '../../user/dto/user.dto';
 import { CreateDrugCategoryDto } from '../dto/drug-category/create-drug-category.dto';
 import { DrugCategoryDto } from '../dto/drug-category/drug-category.dto';
 import { FilterDrugCategoryDto } from '../dto/drug-category/filter-drug-category.dto';
-import { ReportListDto } from '../dto/drug-category/report-list.dto';
+import { ReportListDrugDto } from '../dto/drug-category/report-list.dto';
 import { UpdateDrugCategoryDto } from '../dto/drug-category/update-drug-category.dto';
 import { DrugCategoryService } from '../service/drug-category.service';
 
@@ -95,8 +95,7 @@ export class DrugCategoryController {
 
   @ApiBearerAuth()
   @ApiOkResponse({
-    type: ReportListDto,
-    isArray: true,
+    type: ReportListDrugDto,
   })
   @UseGuards(AuthGuard('jwt'),RolesGuard)
   @Roles('user', 'expert', 'admin')
@@ -106,7 +105,7 @@ export class DrugCategoryController {
     @Param('drug_category_id') drugReportId: string,
     @Query() filterDto: FilterDrugCategoryDto,
     @User() user: UserDto,
-  ): Promise<ReportListDto> {
+  ): Promise<ReportListDrugDto> {
     console.log("Get");
     const result = await this.drugCategoryService.getDrugReportListByCategory(userId, drugReportId,filterDto, user)
     return result;

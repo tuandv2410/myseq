@@ -14,7 +14,7 @@ import { language } from 'src/enum/language.enum';
 import { GenotypeNutritionReportEntity } from 'src/entities/nutrition/genotype-nutrition-report/genotype-nutrition-report.entity';
 import { NutritionTempEntity } from 'src/entities/nutrition/nutrition-temp/nutrition-temp.entity';
 import { NutritionReportEntity } from 'src/entities/nutrition/nutrition-report/nutrition-report.entity';
-import { ReportListNutritionTemp, ReportListDto } from '../dto/nutrition-category/report-list.dto';
+import { ReportListNutritionTemp, ReportListNutritionDto } from '../dto/nutrition-category/report-list.dto';
 
 @Injectable()
 export class NutritionCategoryService {
@@ -91,7 +91,7 @@ export class NutritionCategoryService {
     nutritionCategoryId: string,
     filterDto: FilterNutritionCategoryDto,
     user: UserDto
-  ): Promise<ReportListDto> {
+  ): Promise<ReportListNutritionDto> {
     try{
       const nutritionCategory = await this.getById(nutritionCategoryId, filterDto, user)
       let ans: ReportListNutritionTemp[] = [];

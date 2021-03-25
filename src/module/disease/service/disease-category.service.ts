@@ -18,7 +18,7 @@ import { DiseaseTempEntity } from 'src/entities/disease/disease-temp/disease-tem
 import { DiseaseReportEntity } from 'src/entities/disease/disease-report/disease-report.entity';
 import {
   ReportListDiseaseTemp,
-  ReportListDto,
+  ReportListDiseaseDto,
 } from '../dto/disease-category/report-list.dto';
 
 @Injectable()
@@ -133,7 +133,7 @@ export class DiseaseCategoryService {
     diseaseCategoryId: string,
     filterDto: FilterDiseaseCategoryDto,
     user: UserDto,
-  ): Promise<ReportListDto> {
+  ): Promise<ReportListDiseaseDto> {
     try {
       const diseaseCategory = await this.getById(
         diseaseCategoryId,

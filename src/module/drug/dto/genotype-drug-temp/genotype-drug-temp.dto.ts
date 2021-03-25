@@ -35,6 +35,6 @@ export class GenotypeDrugTempDto {
 
   @AutoMap()
   @ApiProperty({type: GenotypeDrugTempTransDto, isArray:true})
-  GenotypeDrugReportTrans: GenotypeDrugTempTransDto[];
+  genotypeDrugReportTrans: GenotypeDrugTempTransDto[];
 
 }

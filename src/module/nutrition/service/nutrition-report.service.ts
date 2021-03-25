@@ -42,7 +42,10 @@ export class NutritionReportService {
       d=>d.nutritionReportTrans,
       mapFrom(s=>s.nutritionReportTrans)
     )
-    this.mapper.createMap(GenotypeNutritionReportEntity, GenotypeNutritionReportDto);
+    this.mapper.createMap(GenotypeNutritionReportEntity, GenotypeNutritionReportDto).forMember(
+      d=>d.genotypeNutritionReportTrans,
+      mapFrom(s=>s.genotypeNutritionReportTrans)
+    )
   }
 
   async getAll(
@@ -86,6 +89,10 @@ export class NutritionReportService {
     }
     try{
       const nutritionReport = await query.getOne()
+      if(user.role==="user"){
+        nutritionReport.new = false;
+        await nutritionReport.save()
+      }
       this.logger.log(`User ${user.id} get nutritionReport ${id}. Filters: ${JSON.stringify(filterDto)}`)
       if (!nutritionReport) {
         throw new HttpException(`nutritionReport with ID "${id}" not found`, HttpStatus.NOT_FOUND);
@@ -130,6 +137,8 @@ export class NutritionReportService {
       const nutritionTemp = await this.nutritionTempRepo.findOne({where: {id: nutritionTempId}})
       const userTemp = await this.userRepo.findOne({where: {id: userId}})
       const nutritionReport = new NutritionReportEntity();
+      nutritionReport.new = true;
+      nutritionReport.approve = true;
       nutritionReport.user = userTemp
       nutritionReport.nutritionTemp = nutritionTemp
       await nutritionReport.save();
@@ -168,7 +177,9 @@ export class NutritionReportService {
   ): Promise<NutritionReportDto>{
     try{
       const {updateNutritionReportTrans } = updateDto
-      await this.getById(userId,id,{}, user)
+      const nutritionReport = await this.nutritionReportRepo.findOne({where: {id: id}})
+      nutritionReport.approve = false;
+      await nutritionReport.save();
       for(let i=0;i<updateNutritionReportTrans.length;i++){
         const nutritionReportTrans = await this.getTransById(id,updateNutritionReportTrans[i].language, user)
         await this.nutritionReportTransRepo.update(nutritionReportTrans.id,updateNutritionReportTrans[i] )
@@ -188,6 +199,9 @@ export class NutritionReportService {
   ): Promise<NutritionReportDto>{
     try{
       const nutritionReport = await this.getById(userId, id,{}, user)
+      const nutritionReportEntity = await this.nutritionReportRepo.findOne({where: {id: id}})
+      nutritionReportEntity.approve = false;
+      await nutritionReportEntity.save()
       for(let i=0;i<nutritionReport.nutritionReportTrans.length;i++){
         const nutritionReportTrans = await this.nutritionReportTransRepo.findOne({id:nutritionReport.nutritionReportTrans[i].id})
         nutritionReportTrans.finalConclusion = nutritionReportTrans.draftConclusion
@@ -245,6 +259,7 @@ export class NutritionReportService {
       }
 
       this.logger.log(`User ${user.id} create GenotypenutritionReport ${genotypeNutritionReport.id}`)
+      delete genotypeNutritionReport.genotypeNutritionReportTrans
       return this.mapper.map(genotypeNutritionReport, GenotypeNutritionReportDto)
     }catch (error) {
       this.logger.error(`User ${user.id} Failed to create GenotypenutritionReport`, error.stack);

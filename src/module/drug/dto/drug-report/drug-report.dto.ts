@@ -29,6 +29,14 @@ export class DrugReportDto {
   @AutoMap()
   @ApiProperty()
   id: string;
+
+  @AutoMap()
+  @ApiProperty()
+  new: boolean;
+
+  @AutoMap()
+  @ApiProperty()
+  approve: boolean;
   
   @AutoMap()
   @ApiProperty({type: DrugReportTransDto, isArray:true})

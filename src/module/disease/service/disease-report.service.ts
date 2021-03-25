@@ -42,7 +42,10 @@ export class DiseaseReportService {
       d=>d.diseaseReportTrans,
       mapFrom(s=>s.diseaseReportTrans)
     )
-    this.mapper.createMap(GenotypeDiseaseReportEntity, GenotypeDiseaseReportDto);
+    this.mapper.createMap(GenotypeDiseaseReportEntity, GenotypeDiseaseReportDto).forMember(
+      d=>d.genotypeDiseaseReportTrans,
+      mapFrom(s=>s.genotypeDiseaseReportTrans)
+    )
   }
 
   async getAll(
@@ -86,6 +89,11 @@ export class DiseaseReportService {
     }
     try{
       const diseaseReport = await query.getOne()
+      if(user.role==="user"){
+        diseaseReport.new = false;
+        await diseaseReport.save()
+      }
+      await diseaseReport.save()
       this.logger.log(`User ${user.id} get diseaseReport ${id}. Filters: ${JSON.stringify(filterDto)}`)
       if (!diseaseReport) {
         throw new HttpException(`diseaseReport with ID "${id}" not found`, HttpStatus.NOT_FOUND);
@@ -130,6 +138,8 @@ export class DiseaseReportService {
       const diseaseTemp = await this.diseaseTempRepo.findOne({where: {id: diseaseTempId}})
       const userTemp = await this.userRepo.findOne({where: {id: userId}})
       const diseaseReport = new DiseaseReportEntity();
+      diseaseReport.new = true;
+      diseaseReport.approve = true;
       diseaseReport.user = userTemp
       diseaseReport.diseaseTemp = diseaseTemp
       await diseaseReport.save();
@@ -168,7 +178,9 @@ export class DiseaseReportService {
   ): Promise<DiseaseReportDto>{
     try{
       const {updateDiseaseReportTrans } = updateDto
-      await this.getById(userId,id,{}, user)
+      const diseaseReport = await this.diseaseReportRepo.findOne({where: {id: id}})
+      diseaseReport.approve = false;
+      await diseaseReport.save()
       for(let i=0;i<updateDiseaseReportTrans.length;i++){
         const diseaseReportTrans = await this.getTransById(id,updateDiseaseReportTrans[i].language, user)
         await this.diseaseReportTransRepo.update(diseaseReportTrans.id,updateDiseaseReportTrans[i] )
@@ -187,7 +199,10 @@ export class DiseaseReportService {
     user: UserDto,
   ): Promise<DiseaseReportDto>{
     try{
-      const diseaseReport = await this.getById(userId, id,{}, user)
+      const diseaseReport = await this.getById(userId,id,{}, user)
+      const diseaseReportEntity = await this.diseaseReportRepo.findOne({where: {id: id}})
+      diseaseReportEntity.approve = true
+      await diseaseReportEntity.save()
       for(let i=0;i<diseaseReport.diseaseReportTrans.length;i++){
         const diseaseReportTrans = await this.diseaseReportTransRepo.findOne({id:diseaseReport.diseaseReportTrans[i].id})
         diseaseReportTrans.finalConclusion = diseaseReportTrans.draftConclusion
@@ -245,6 +260,7 @@ export class DiseaseReportService {
       }
 
       this.logger.log(`User ${user.id} create GenotypediseaseReport ${genotypeDiseaseReport.id}`)
+      delete genotypeDiseaseReport.genotypeDiseaseReportTrans
       return this.mapper.map(genotypeDiseaseReport, GenotypeDiseaseReportDto)
     }catch (error) {
       this.logger.error(`User ${user.id} Failed to create GenotypediseaseReport`, error.stack);

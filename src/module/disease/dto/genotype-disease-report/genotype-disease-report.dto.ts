@@ -34,6 +34,6 @@ export class GenotypeDiseaseReportDto {
 
   @AutoMap()
   @ApiProperty({type: GenotypeDiseaseReportTransDto, isArray:true})
-  GenotypeDiseaseReportTrans: GenotypeDiseaseReportTransDto[];
+  genotypeDiseaseReportTrans: GenotypeDiseaseReportTransDto[];
 
 }

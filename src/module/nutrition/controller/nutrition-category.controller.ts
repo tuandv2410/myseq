@@ -9,7 +9,7 @@ import { UserDto } from '../../user/dto/user.dto';
 import { CreateNutritionCategoryDto } from '../dto/nutrition-category/create-nutrition-category.dto';
 import { NutritionCategoryDto } from '../dto/nutrition-category/nutrition-category.dto';
 import { FilterNutritionCategoryDto } from '../dto/nutrition-category/filter-nutrition-category.dto';
-import { ReportListDto } from '../dto/nutrition-category/report-list.dto';
+import { ReportListNutritionDto } from '../dto/nutrition-category/report-list.dto';
 import { UpdateNutritionCategoryDto } from '../dto/nutrition-category/update-nutrition-category.dto';
 import { NutritionCategoryService } from '../service/nutrition-category.service';
 
@@ -95,8 +95,7 @@ export class NutritionCategoryController {
 
   @ApiBearerAuth()
   @ApiOkResponse({
-    type: ReportListDto,
-    isArray: true,
+    type: ReportListNutritionDto,
   })
   @UseGuards(AuthGuard('jwt'),RolesGuard)
   @Roles('user', 'expert', 'admin')
@@ -106,7 +105,7 @@ export class NutritionCategoryController {
     @Param('nutrition_category_id') nutritionReportId: string,
     @Query() filterDto: FilterNutritionCategoryDto,
     @User() user: UserDto,
-  ): Promise<ReportListDto> {
+  ): Promise<ReportListNutritionDto> {
     console.log("Get");
     const result = await this.nutritionCategoryService.getNutritionReportListByCategory(userId, nutritionReportId,filterDto, user)
     return result;
