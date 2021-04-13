@@ -15,6 +15,7 @@ import { GenotypeNutritionReportEntity } from 'src/entities/nutrition/genotype-n
 import { NutritionTempEntity } from 'src/entities/nutrition/nutrition-temp/nutrition-temp.entity';
 import { NutritionReportEntity } from 'src/entities/nutrition/nutrition-report/nutrition-report.entity';
 import { ReportListNutritionTemp, ReportListNutritionDto } from '../dto/nutrition-category/report-list.dto';
+import { NutritionCategoryByUserDto } from '../dto/nutrition-category/nutrition-category-by-user.dto';
 
 @Injectable()
 export class NutritionCategoryService {
@@ -58,6 +59,44 @@ export class NutritionCategoryService {
       this.logger.error(`User ${user.id} Failed to get nutritionCategory. Filters: ${JSON.stringify(filterDto)}`, error.stack);
       throw new HttpException("Failed to get nutritionCategory!", HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  async getAllByUser(
+    userId: string,
+    filterDto: FilterNutritionCategoryDto,
+    user: UserDto,
+  ): Promise<NutritionCategoryByUserDto[]> {
+    let ans: NutritionCategoryByUserDto[] = [];
+    const listCategory = await this.getAll(filterDto, user);
+    for(let i=0; i<listCategory.length; i++){
+      let aCategory = new NutritionCategoryByUserDto;
+      aCategory.new = await this.checkNewInCategory(listCategory[i].id, userId)
+      aCategory.id = listCategory[i].id;
+      aCategory.nutritionCategoryTrans = listCategory[i].nutritionCategoryTrans
+      ans = [...ans, aCategory];
+    }
+    return ans;
+  }
+
+  async checkNewInCategory(
+    categoryId: string, 
+    userId: string
+  ): Promise<boolean>{
+    let ans = false;
+    const nutritionTemps = await this.nutritionTempRepo.find({
+      where: { diseaseCategory: categoryId },
+    });
+    for (let i = 0; i < nutritionTemps.length; i++) {
+      const nutritionReport: NutritionReportEntity = await this.nutritionReportRepo.findOne(
+        {
+          where: { nutritionTemp: nutritionTemps[i].id, user: userId },
+        },
+      );
+      if(nutritionReport.new){
+        ans = true;
+      }
+    }
+    return ans
   }
 
   async getById(

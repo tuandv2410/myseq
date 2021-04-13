@@ -12,6 +12,7 @@ import { FilterNutritionCategoryDto } from '../dto/nutrition-category/filter-nut
 import { ReportListNutritionDto } from '../dto/nutrition-category/report-list.dto';
 import { UpdateNutritionCategoryDto } from '../dto/nutrition-category/update-nutrition-category.dto';
 import { NutritionCategoryService } from '../service/nutrition-category.service';
+import { NutritionCategoryByUserDto } from '../dto/nutrition-category/nutrition-category-by-user.dto';
 
 @ApiTags("nutrition_category")
 @Controller("nutrition_category")
@@ -33,6 +34,23 @@ export class NutritionCategoryController {
     @User() user: UserDto,
   ): Promise<NutritionCategoryDto[]> {
     const result = await this.nutritionCategoryService.getAll(filterDto, user)
+    return result;
+  }
+
+  @ApiBearerAuth()
+  @ApiOkResponse({
+    type: NutritionCategoryByUserDto,
+    isArray: true,
+  })
+  @UseGuards(AuthGuard('jwt'),RolesGuard)
+  @Roles('user', 'expert', 'admin')
+  @Get("/user/:userId")
+  async getAllDiseaseCategoryByUser(
+    @Param() userId: string,
+    @Query() filterDto: FilterNutritionCategoryDto,
+    @User() user: UserDto,
+  ): Promise<NutritionCategoryByUserDto[]> {
+    const result = await this.nutritionCategoryService.getAllByUser(userId, filterDto, user)
     return result;
   }
 

@@ -14,6 +14,7 @@ import { language } from 'src/enum/language.enum';
 import { DrugTempEntity } from 'src/entities/drug/drug-temp/drug-temp.entity';
 import { DrugReportEntity } from 'src/entities/drug/drug-report/drug-report.entity';
 import { ReportListDrugTemp, ReportListDrugDto } from '../dto/drug-category/report-list.dto';
+import { DrugCategoryByUserDto } from '../dto/drug-category/drug-category-by-user.dto';
 
 @Injectable()
 export class DrugCategoryService {
@@ -57,6 +58,44 @@ export class DrugCategoryService {
       this.logger.error(`User ${user.id} Failed to get drugCategory. Filters: ${JSON.stringify(filterDto)}`, error.stack);
       throw new HttpException("Failed to get drugCategory!", HttpStatus.INTERNAL_SERVER_ERROR);
     }
+  }
+
+  async getAllByUser(
+    userId: string,
+    filterDto: FilterDrugCategoryDto,
+    user: UserDto,
+  ): Promise<DrugCategoryByUserDto[]> {
+    let ans: DrugCategoryByUserDto[] = [];
+    const listCategory = await this.getAll(filterDto, user);
+    for(let i=0; i<listCategory.length; i++){
+      let aCategory = new DrugCategoryByUserDto;
+      aCategory.new = await this.checkNewInCategory(listCategory[i].id, userId)
+      aCategory.id = listCategory[i].id;
+      aCategory.drugCategoryTrans = listCategory[i].drugCategoryTrans
+      ans = [...ans, aCategory];
+    }
+    return ans;
+  }
+
+  async checkNewInCategory(
+    categoryId: string, 
+    userId: string
+  ): Promise<boolean>{
+    let ans = false;
+    const drugTemps = await this.drugTempRepo.find({
+      where: { diseaseCategory: categoryId },
+    });
+    for (let i = 0; i < drugTemps.length; i++) {
+      const drugReport: DrugReportEntity = await this.drugReportRepo.findOne(
+        {
+          where: { diseaseTemp: drugTemps[i].id, user: userId },
+        },
+      );
+      if(drugReport.new){
+        ans = true;
+      }
+    }
+    return ans
   }
 
   async getById(

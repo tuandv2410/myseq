@@ -20,6 +20,7 @@ import {
   ReportListDiseaseTemp,
   ReportListDiseaseDto,
 } from '../dto/disease-category/report-list.dto';
+import { DiseaseCategoryByUserDto } from '../dto/disease-category/disease-category-by-user.dto';
 
 @Injectable()
 export class DiseaseCategoryService {
@@ -80,6 +81,44 @@ export class DiseaseCategoryService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  async getAllByUser(
+    userId: string,
+    filterDto: FilterDiseaseCategoryDto,
+    user: UserDto,
+  ): Promise<DiseaseCategoryByUserDto[]> {
+    let ans: DiseaseCategoryByUserDto[] = [];
+    const listCategory = await this.getAll(filterDto, user);
+    for(let i=0; i<listCategory.length; i++){
+      let aCategory = new DiseaseCategoryByUserDto;
+      aCategory.new = await this.checkNewInCategory(listCategory[i].id, userId)
+      aCategory.id = listCategory[i].id;
+      aCategory.diseaseCategoryTrans = listCategory[i].diseaseCategoryTrans
+      ans = [...ans, aCategory];
+    }
+    return ans;
+  }
+
+  async checkNewInCategory(
+    categoryId: string, 
+    userId: string
+  ): Promise<boolean>{
+    let ans = false;
+    const diseaseTemps = await this.diseaseTempRepo.find({
+      where: { diseaseCategory: categoryId },
+    });
+    for (let i = 0; i < diseaseTemps.length; i++) {
+      const diseaseReport: DiseaseReportEntity = await this.diseaseReportRepo.findOne(
+        {
+          where: { diseaseTemp: diseaseTemps[i].id, user: userId },
+        },
+      );
+      if(diseaseReport.new){
+        ans = true;
+      }
+    }
+    return ans
   }
 
   async getById(

@@ -7,6 +7,7 @@ import { Roles } from '../../auth/roles.decorator';
 import { RolesGuard } from '../../auth/roles.guard';
 import { UserDto } from '../../user/dto/user.dto';
 import { CreateDrugCategoryDto } from '../dto/drug-category/create-drug-category.dto';
+import { DrugCategoryByUserDto } from '../dto/drug-category/drug-category-by-user.dto';
 import { DrugCategoryDto } from '../dto/drug-category/drug-category.dto';
 import { FilterDrugCategoryDto } from '../dto/drug-category/filter-drug-category.dto';
 import { ReportListDrugDto } from '../dto/drug-category/report-list.dto';
@@ -33,6 +34,23 @@ export class DrugCategoryController {
     @User() user: UserDto,
   ): Promise<DrugCategoryDto[]> {
     const result = await this.drugCategoryService.getAll(filterDto, user)
+    return result;
+  }
+
+  @ApiBearerAuth()
+  @ApiOkResponse({
+    type: DrugCategoryByUserDto,
+    isArray: true,
+  })
+  @UseGuards(AuthGuard('jwt'),RolesGuard)
+  @Roles('user', 'expert', 'admin')
+  @Get("/user/:userId")
+  async getAllDiseaseCategoryByUser(
+    @Param() userId: string,
+    @Query() filterDto: FilterDrugCategoryDto,
+    @User() user: UserDto,
+  ): Promise<DrugCategoryByUserDto[]> {
+    const result = await this.drugCategoryService.getAllByUser(userId, filterDto, user)
     return result;
   }
 
