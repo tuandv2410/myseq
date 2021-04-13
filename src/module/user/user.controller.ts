@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '../auth/get-user.decorator';
@@ -10,26 +19,24 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UserDto } from './dto/user.dto';
 import { UserService } from './user.service';
 
-@ApiTags("user")
+@ApiTags('user')
 @Controller('user')
 export class UserController {
-  constructor(
-    private readonly service: UserService,
-  ) {}
+  constructor(private readonly service: UserService) {}
 
   @ApiBearerAuth()
   @ApiOkResponse({
     type: UserDto,
     isArray: true,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
-  @Roles('expert','admin')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('expert', 'admin', 'expertboss')
   @Get()
   async getAll(
     @Query() filterDto: FilterUserDto,
     @User() user: UserDto,
   ): Promise<UserDto[]> {
-    const result = await this.service.getAll(filterDto, user)
+    const result = await this.service.getAll(filterDto, user);
     return result;
   }
 
@@ -37,9 +44,9 @@ export class UserController {
   @ApiOkResponse({
     type: UserDto,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
-  @Roles('user','expert','admin')
-  @Get("/:userId")
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('user', 'expert', 'admin', 'expertboss')
+  @Get('/:userId')
   async getById(
     @Param('userId') userId: string,
     @User() user: UserDto,
@@ -54,9 +61,7 @@ export class UserController {
   // @UseGuards(AuthGuard('jwt'),RolesGuard)
   // @Roles('admin')
   @Post()
-  async create(
-    @Body() userData: CreateUserDto
-  ): Promise<UserDto> {
+  async create(@Body() userData: CreateUserDto): Promise<UserDto> {
     return this.service.create(userData);
   }
 
@@ -64,14 +69,14 @@ export class UserController {
   @ApiOkResponse({
     type: UserDto,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
-  @Roles('user','admin')
-  @Put("/:userId")
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('user', 'admin', 'expertboss', 'expert')
+  @Put('/:userId')
   async update(
-    @Param("userId") userId: string,
+    @Param('userId') userId: string,
     @Body() userData: UpdateUserDto,
     @User() user: UserDto,
   ): Promise<UserDto> {
-    return this.service.update(userId,userData, user);
+    return this.service.update(userId, userData, user);
   }
 }

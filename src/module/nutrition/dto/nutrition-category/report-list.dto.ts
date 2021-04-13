@@ -1,8 +1,7 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { AutoMap } from "nestjsx-automapper";
+import { ApiProperty } from '@nestjs/swagger';
+import { AutoMap } from 'nestjsx-automapper';
 
-export class ReportListNutritionCategoryTrans{
-
+export class ReportListNutritionCategoryTrans {
   @ApiProperty()
   name: string;
 
@@ -10,34 +9,40 @@ export class ReportListNutritionCategoryTrans{
   description: string;
 }
 
-export class ReportListNutritionReportTrans{
-  @ApiProperty({required: false})
+export class ReportListNutritionReportTrans {
+  @ApiProperty({ required: false })
   reportId: string;
 
-  @ApiProperty({required: false})
+  @ApiProperty({ required: false })
+  approve: boolean;
+
+  @ApiProperty({ required: false })
+  new: boolean;
+
+  @ApiProperty({ required: false })
   draftConclusion?: string;
 
-  @ApiProperty({required: false})
+  @ApiProperty({ required: false })
   finalConclusion?: string;
 }
 
-export class ReportListNutritionTemp{
+export class ReportListNutritionTemp {
   @ApiProperty()
   tempId: string;
 
   @ApiProperty()
   name: string;
 
-  @ApiProperty({type: ReportListNutritionReportTrans})
+  @ApiProperty({ type: ReportListNutritionReportTrans })
   nutritionReportTrans?: ReportListNutritionReportTrans;
 
   @ApiProperty()
   level: number;
 }
-export class ReportListNutritionDto{
+export class ReportListNutritionDto {
   @ApiProperty()
   nutritionCategoryTrans: ReportListNutritionCategoryTrans;
 
-  @ApiProperty({type:ReportListNutritionTemp, isArray:true})
+  @ApiProperty({ type: ReportListNutritionTemp, isArray: true })
   nutritionTemp: ReportListNutritionTemp[];
 }

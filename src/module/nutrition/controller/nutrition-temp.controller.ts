@@ -1,6 +1,21 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ResultInterface } from 'src/interfaces/result.interface';
 import { User } from '../../auth/get-user.decorator';
 import { Roles } from '../../auth/roles.decorator';
@@ -15,26 +30,24 @@ import { FilterGenotypeNutritionTempDto } from '../dto/genotype-nutrition-temp/f
 import { GenotypeNutritionTempDto } from '../dto/genotype-nutrition-temp/genotype-nutrition-temp.dto';
 import { NutritionTempService } from '../service/nutrition-temp.service';
 
-@ApiTags("nutrition_temp")
+@ApiTags('nutrition_temp')
 @Controller()
 export class NutritionTempController {
-  constructor(
-    private readonly nutritionTempService: NutritionTempService,
-  ) {}
+  constructor(private readonly nutritionTempService: NutritionTempService) {}
 
   @ApiBearerAuth()
   @ApiOkResponse({
     type: NutritionTempDto,
     isArray: true,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
-  @Roles('user', 'expert', 'admin')
-  @Get("/nutrition_temp")
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('user', 'expert', 'admin', 'expertboss')
+  @Get('/nutrition_temp')
   async getAllNutritionTemp(
     @Query() filterDto: FilterNutritionTempDto,
     @User() user: UserDto,
   ): Promise<NutritionTempDto[]> {
-    const result = await this.nutritionTempService.getAll(filterDto, user)
+    const result = await this.nutritionTempService.getAll(filterDto, user);
     return result;
   }
 
@@ -42,15 +55,19 @@ export class NutritionTempController {
   @ApiOkResponse({
     type: NutritionTempDto,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
-  @Roles('user', 'expert', 'admin')
-  @Get("/nutrition_temp/:nutrition_temp_id")
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('user', 'expert', 'admin', 'expertboss')
+  @Get('/nutrition_temp/:nutrition_temp_id')
   async getNutritionTempById(
     @Param('nutrition_temp_id') nutritionTempId: string,
     @Query() filterDto: FilterNutritionTempDto,
     @User() user: UserDto,
   ): Promise<NutritionTempDto> {
-    const result = await this.nutritionTempService.getById(nutritionTempId,filterDto, user)
+    const result = await this.nutritionTempService.getById(
+      nutritionTempId,
+      filterDto,
+      user,
+    );
     return result;
   }
 
@@ -58,9 +75,9 @@ export class NutritionTempController {
   @ApiCreatedResponse({
     type: NutritionTempDto,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin')
-  @Post("/nutrition_temp")
+  @Post('/nutrition_temp')
   async createNutritionTemp(
     @Body() userData: CreateNutritionTempDto,
     @User() user: UserDto,
@@ -72,22 +89,22 @@ export class NutritionTempController {
   @ApiOkResponse({
     type: NutritionTempDto,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
-  @Roles("admin")
-  @Put("nutrition_temp/:nutrition_temp_id")
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin')
+  @Put('nutrition_temp/:nutrition_temp_id')
   async updateNutritionTemp(
-    @Param("nutrition_temp_id") nutritionTempId: string,
+    @Param('nutrition_temp_id') nutritionTempId: string,
     @Body() userData: UpdateNutritionTempDto,
     @User() user: UserDto,
   ): Promise<NutritionTempDto> {
-    return this.nutritionTempService.update(nutritionTempId,userData, user);
+    return this.nutritionTempService.update(nutritionTempId, userData, user);
   }
 
   @ApiBearerAuth()
   @ApiOkResponse()
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
-  @Roles("admin")
-  @Delete("nutrition_temp/:nutrition_temp_id")
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin')
+  @Delete('nutrition_temp/:nutrition_temp_id')
   async deleteNutritionTemp(
     @Param('nutrition_temp_id') nutritionTempId: string,
     @User() user: UserDto,
@@ -99,15 +116,19 @@ export class NutritionTempController {
   @ApiOkResponse({
     type: NutritionTempDto,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin')
-  @Post("nutrition_temp/:nutrition_temp_id/genotype")
+  @Post('nutrition_temp/:nutrition_temp_id/genotype')
   async createGenotypeNutritionTemp(
     @Param('nutrition_temp_id') nutritionTempId: string,
     @Body() userData: CreateGenotypeNutritionTempDto,
     @User() user: UserDto,
   ): Promise<GenotypeNutritionTempDto> {
-    return this.nutritionTempService.createGenotype(nutritionTempId,userData, user);
+    return this.nutritionTempService.createGenotype(
+      nutritionTempId,
+      userData,
+      user,
+    );
   }
 
   @ApiBearerAuth()
@@ -115,15 +136,19 @@ export class NutritionTempController {
     type: NutritionTempDto,
     isArray: true,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
-  @Roles('user', 'expert', 'admin')
-  @Get("nutrition_temp/:nutrition_temp_id/genotype")
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('user', 'expert', 'admin', 'expertboss')
+  @Get('nutrition_temp/:nutrition_temp_id/genotype')
   async getAllGenotypeNutritionTemp(
     @Param('nutrition_temp_id') nutritionTempId: string,
     @Query() filterDto: FilterGenotypeNutritionTempDto,
     @User() user: UserDto,
   ): Promise<GenotypeNutritionTempDto[]> {
-    const result = await this.nutritionTempService.getAllGenotypeNutritionTemp(nutritionTempId,filterDto, user)
+    const result = await this.nutritionTempService.getAllGenotypeNutritionTemp(
+      nutritionTempId,
+      filterDto,
+      user,
+    );
     return result;
   }
 }

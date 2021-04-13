@@ -1,6 +1,21 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ResultInterface } from 'src/interfaces/result.interface';
 import { User } from '../../auth/get-user.decorator';
 import { Roles } from '../../auth/roles.decorator';
@@ -15,7 +30,7 @@ import { FilterGenotypeNutritionReportDto } from '../dto/genotype-nutrition-repo
 import { GenotypeNutritionReportDto } from '../dto/genotype-nutrition-report/genotype-nutrition-report.dto';
 import { NutritionReportService } from '../service/nutrition-report.service';
 
-@ApiTags("nutrition_report")
+@ApiTags('nutrition_report')
 @Controller()
 export class NutritionReportController {
   constructor(
@@ -27,15 +42,19 @@ export class NutritionReportController {
     type: NutritionReportDto,
     isArray: true,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
-  @Roles('user', 'expert', 'admin')
-  @Get("/user/:userId/nutrition_report")
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('user', 'expert', 'admin', 'expertboss')
+  @Get('/user/:userId/nutrition_report')
   async getAllNutritionReport(
-    @Param("userId") userId: string,
+    @Param('userId') userId: string,
     @Query() filterDto: FilterNutritionReportDto,
     @User() user: UserDto,
   ): Promise<NutritionReportDto[]> {
-    const result = await this.nutritionReportService.getAll(userId,filterDto, user)
+    const result = await this.nutritionReportService.getAll(
+      userId,
+      filterDto,
+      user,
+    );
     return result;
   }
 
@@ -43,16 +62,21 @@ export class NutritionReportController {
   @ApiOkResponse({
     type: NutritionReportDto,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
-  @Roles('user', 'expert', 'admin')
-  @Get("/user/:userId/nutrition_report/:nutrition_report_id")
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('user', 'expert', 'admin', 'expertboss')
+  @Get('/user/:userId/nutrition_report/:nutrition_report_id')
   async getNutritionReportById(
     @Param('userId') userId: string,
     @Query() filterDto: FilterNutritionReportDto,
     @Param('nutrition_report_id') nutritionReportId: string,
     @User() user: UserDto,
   ): Promise<NutritionReportDto> {
-    const result = await this.nutritionReportService.getById(userId, nutritionReportId,filterDto, user)
+    const result = await this.nutritionReportService.getById(
+      userId,
+      nutritionReportId,
+      filterDto,
+      user,
+    );
     return result;
   }
 
@@ -60,9 +84,9 @@ export class NutritionReportController {
   @ApiCreatedResponse({
     type: NutritionReportDto,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin')
-  @Post("/user/:userId/nutrition_report")
+  @Post('/user/:userId/nutrition_report')
   async createNutritionReport(
     @Param('userId') userId: string,
     @Body() userData: CreateNutritionReportDto,
@@ -75,38 +99,43 @@ export class NutritionReportController {
   @ApiOkResponse({
     type: NutritionReportDto,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
-  @Roles("admin")
-  @Put("/user/:userId/nutrition_report/:nutrition_report_id")
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin', 'expert', 'expertboss')
+  @Put('/user/:userId/nutrition_report/:nutrition_report_id')
   async updateNutritionReport(
     @Param('userId') userId: string,
-    @Param("nutrition_report_id") nutritionReportId: string,
+    @Param('nutrition_report_id') nutritionReportId: string,
     @Body() userData: UpdateNutritionReportDto,
     @User() user: UserDto,
   ): Promise<NutritionReportDto> {
-    return this.nutritionReportService.update(userId, nutritionReportId,userData, user);
+    return this.nutritionReportService.update(
+      userId,
+      nutritionReportId,
+      userData,
+      user,
+    );
   }
 
   @ApiBearerAuth()
   @ApiOkResponse({
     type: NutritionReportDto,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
-  @Roles("expertboss", "admin")
-  @Put("/user/:userId/nutrition_report/:nutrition_report_id/approve")
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('expertboss', 'admin')
+  @Put('/user/:userId/nutrition_report/:nutrition_report_id/approve')
   async approveNutritionReport(
     @Param('userId') userId: string,
-    @Param("nutrition_report_id") nutritionReportId: string,
+    @Param('nutrition_report_id') nutritionReportId: string,
     @User() user: UserDto,
   ): Promise<NutritionReportDto> {
-    return this.nutritionReportService.approve(userId, nutritionReportId,user);
+    return this.nutritionReportService.approve(userId, nutritionReportId, user);
   }
 
   @ApiBearerAuth()
   @ApiOkResponse()
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
-  @Roles("admin")
-  @Delete("/user/:userId/nutrition_report/:nutrition_report_id")
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin')
+  @Delete('/user/:userId/nutrition_report/:nutrition_report_id')
   async deleteNutritionReport(
     @Param('userId') userId: string,
     @Param('nutrition_report_id') nutritionReportId: string,
@@ -119,15 +148,19 @@ export class NutritionReportController {
   @ApiOkResponse({
     type: NutritionReportDto,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin')
-  @Post("/nutrition_report/:nutrition_report_id/genotype")
+  @Post('/nutrition_report/:nutrition_report_id/genotype')
   async createGenotypeNutritionReport(
     @Param('nutrition_report_id') nutritionReportId: string,
     @Body() userData: CreateGenotypeNutritionReportDto,
     @User() user: UserDto,
   ): Promise<GenotypeNutritionReportDto> {
-    return this.nutritionReportService.createGenotype(nutritionReportId,userData, user);
+    return this.nutritionReportService.createGenotype(
+      nutritionReportId,
+      userData,
+      user,
+    );
   }
 
   @ApiBearerAuth()
@@ -135,16 +168,19 @@ export class NutritionReportController {
     type: NutritionReportDto,
     isArray: true,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
-  @Roles('user', 'expert', 'admin')
-  @Get("/nutrition_report/:nutrition_report_id/genotype")
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('user', 'expert', 'admin', 'expertboss')
+  @Get('/nutrition_report/:nutrition_report_id/genotype')
   async getAllGenotypeNutritionReport(
     @Param('nutrition_report_id') nutritionReportId: string,
     @Query() filterDto: FilterGenotypeNutritionReportDto,
     @User() user: UserDto,
   ): Promise<GenotypeNutritionReportDto[]> {
-    const result = await this.nutritionReportService.getAllGenotypeNutritionReport(nutritionReportId,filterDto, user)
+    const result = await this.nutritionReportService.getAllGenotypeNutritionReport(
+      nutritionReportId,
+      filterDto,
+      user,
+    );
     return result;
   }
-
 }

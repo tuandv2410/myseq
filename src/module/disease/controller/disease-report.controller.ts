@@ -1,6 +1,21 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ResultInterface } from 'src/interfaces/result.interface';
 import { User } from '../../auth/get-user.decorator';
 import { Roles } from '../../auth/roles.decorator';
@@ -15,27 +30,29 @@ import { FilterGenotypeDiseaseReportDto } from '../dto/genotype-disease-report/f
 import { GenotypeDiseaseReportDto } from '../dto/genotype-disease-report/genotype-disease-report.dto';
 import { DiseaseReportService } from '../service/disease-report.service';
 
-@ApiTags("disease_report")
+@ApiTags('disease_report')
 @Controller()
 export class DiseaseReportController {
-  constructor(
-    private readonly diseaseReportService: DiseaseReportService,
-  ) {}
+  constructor(private readonly diseaseReportService: DiseaseReportService) {}
 
   @ApiBearerAuth()
   @ApiOkResponse({
     type: DiseaseReportDto,
     isArray: true,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
-  @Roles('user', 'expert', 'admin')
-  @Get("/user/:userId/disease_report")
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('user', 'expert', 'admin', 'expertboss')
+  @Get('/user/:userId/disease_report')
   async getAllDiseaseReport(
-    @Param("userId") userId: string,
+    @Param('userId') userId: string,
     @Query() filterDto: FilterDiseaseReportDto,
     @User() user: UserDto,
   ): Promise<DiseaseReportDto[]> {
-    const result = await this.diseaseReportService.getAll(userId,filterDto, user)
+    const result = await this.diseaseReportService.getAll(
+      userId,
+      filterDto,
+      user,
+    );
     return result;
   }
 
@@ -43,16 +60,21 @@ export class DiseaseReportController {
   @ApiOkResponse({
     type: DiseaseReportDto,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
-  @Roles('user', 'expert', 'admin')
-  @Get("/user/:userId/disease_report/:disease_report_id")
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('user', 'expert', 'admin', 'expertboss')
+  @Get('/user/:userId/disease_report/:disease_report_id')
   async getDiseaseReportById(
     @Param('userId') userId: string,
     @Query() filterDto: FilterDiseaseReportDto,
     @Param('disease_report_id') diseaseReportId: string,
     @User() user: UserDto,
   ): Promise<DiseaseReportDto> {
-    const result = await this.diseaseReportService.getById(userId, diseaseReportId,filterDto, user)
+    const result = await this.diseaseReportService.getById(
+      userId,
+      diseaseReportId,
+      filterDto,
+      user,
+    );
     return result;
   }
 
@@ -60,9 +82,9 @@ export class DiseaseReportController {
   @ApiCreatedResponse({
     type: DiseaseReportDto,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin')
-  @Post("/user/:userId/disease_report")
+  @Post('/user/:userId/disease_report')
   async createDiseaseReport(
     @Param('userId') userId: string,
     @Body() userData: CreateDiseaseReportDto,
@@ -75,38 +97,43 @@ export class DiseaseReportController {
   @ApiOkResponse({
     type: DiseaseReportDto,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
-  @Roles("admin")
-  @Put("/user/:userId/disease_report/:disease_report_id")
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin', 'expert', 'expertboss')
+  @Put('/user/:userId/disease_report/:disease_report_id')
   async updateDiseaseReport(
     @Param('userId') userId: string,
-    @Param("disease_report_id") diseaseReportId: string,
+    @Param('disease_report_id') diseaseReportId: string,
     @Body() userData: UpdateDiseaseReportDto,
     @User() user: UserDto,
   ): Promise<DiseaseReportDto> {
-    return this.diseaseReportService.update(userId, diseaseReportId,userData, user);
+    return this.diseaseReportService.update(
+      userId,
+      diseaseReportId,
+      userData,
+      user,
+    );
   }
 
   @ApiBearerAuth()
   @ApiOkResponse({
     type: DiseaseReportDto,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
-  @Roles("expertboss", "admin")
-  @Put("/user/:userId/disease_report/:disease_report_id/approve")
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('expertboss', 'admin')
+  @Put('/user/:userId/disease_report/:disease_report_id/approve')
   async approveDiseaseReport(
     @Param('userId') userId: string,
-    @Param("disease_report_id") diseaseReportId: string,
+    @Param('disease_report_id') diseaseReportId: string,
     @User() user: UserDto,
   ): Promise<DiseaseReportDto> {
-    return this.diseaseReportService.approve(userId, diseaseReportId,user);
+    return this.diseaseReportService.approve(userId, diseaseReportId, user);
   }
 
   @ApiBearerAuth()
   @ApiOkResponse()
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
-  @Roles("admin")
-  @Delete("/user/:userId/disease_report/:disease_report_id")
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin')
+  @Delete('/user/:userId/disease_report/:disease_report_id')
   async deleteDiseaseReport(
     @Param('userId') userId: string,
     @Param('disease_report_id') diseaseReportId: string,
@@ -119,15 +146,19 @@ export class DiseaseReportController {
   @ApiOkResponse({
     type: DiseaseReportDto,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin')
-  @Post("/disease_report/:disease_report_id/genotype")
+  @Post('/disease_report/:disease_report_id/genotype')
   async createGenotypeDiseaseReport(
     @Param('disease_report_id') diseaseReportId: string,
     @Body() userData: CreateGenotypeDiseaseReportDto,
     @User() user: UserDto,
   ): Promise<GenotypeDiseaseReportDto> {
-    return this.diseaseReportService.createGenotype(diseaseReportId,userData, user);
+    return this.diseaseReportService.createGenotype(
+      diseaseReportId,
+      userData,
+      user,
+    );
   }
 
   @ApiBearerAuth()
@@ -135,16 +166,19 @@ export class DiseaseReportController {
     type: DiseaseReportDto,
     isArray: true,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
-  @Roles('user', 'expert', 'admin')
-  @Get("/disease_report/:disease_report_id/genotype")
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('user', 'expert', 'admin', 'expertboss')
+  @Get('/disease_report/:disease_report_id/genotype')
   async getAllGenotypeDiseaseReport(
     @Param('disease_report_id') diseaseReportId: string,
     @Query() filterDto: FilterGenotypeDiseaseReportDto,
     @User() user: UserDto,
   ): Promise<GenotypeDiseaseReportDto[]> {
-    const result = await this.diseaseReportService.getAllGenotypeDiseaseReport(diseaseReportId,filterDto, user)
+    const result = await this.diseaseReportService.getAllGenotypeDiseaseReport(
+      diseaseReportId,
+      filterDto,
+      user,
+    );
     return result;
   }
-
 }

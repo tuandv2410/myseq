@@ -1,6 +1,21 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth, ApiCreatedResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ResultInterface } from 'src/interfaces/result.interface';
 import { User } from '../../auth/get-user.decorator';
 import { Roles } from '../../auth/roles.decorator';
@@ -15,26 +30,24 @@ import { FilterGenotypeDrugTempDto } from '../dto/genotype-drug-temp/filter-geno
 import { GenotypeDrugTempDto } from '../dto/genotype-drug-temp/genotype-drug-temp.dto';
 import { DrugTempService } from '../service/drug-temp.service';
 
-@ApiTags("drug_temp")
+@ApiTags('drug_temp')
 @Controller()
 export class DrugTempController {
-  constructor(
-    private readonly drugTempService: DrugTempService,
-  ) {}
+  constructor(private readonly drugTempService: DrugTempService) {}
 
   @ApiBearerAuth()
   @ApiOkResponse({
     type: DrugTempDto,
     isArray: true,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
-  @Roles('user', 'expert', 'admin')
-  @Get("/drug_temp")
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('user', 'expert', 'admin', 'expertboss')
+  @Get('/drug_temp')
   async getAllDrugTemp(
     @Query() filterDto: FilterDrugTempDto,
     @User() user: UserDto,
   ): Promise<DrugTempDto[]> {
-    const result = await this.drugTempService.getAll(filterDto, user)
+    const result = await this.drugTempService.getAll(filterDto, user);
     return result;
   }
 
@@ -42,15 +55,19 @@ export class DrugTempController {
   @ApiOkResponse({
     type: DrugTempDto,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
-  @Roles('user', 'expert', 'admin')
-  @Get("/drug_temp/:drug_temp_id")
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('user', 'expert', 'admin', 'expertboss')
+  @Get('/drug_temp/:drug_temp_id')
   async getDrugTempById(
     @Param('drug_temp_id') drugTempId: string,
     @Query() filterDto: FilterDrugTempDto,
     @User() user: UserDto,
   ): Promise<DrugTempDto> {
-    const result = await this.drugTempService.getById(drugTempId,filterDto, user)
+    const result = await this.drugTempService.getById(
+      drugTempId,
+      filterDto,
+      user,
+    );
     return result;
   }
 
@@ -58,9 +75,9 @@ export class DrugTempController {
   @ApiCreatedResponse({
     type: DrugTempDto,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin')
-  @Post("/drug_temp")
+  @Post('/drug_temp')
   async createDrugTemp(
     @Body() userData: CreateDrugTempDto,
     @User() user: UserDto,
@@ -72,22 +89,22 @@ export class DrugTempController {
   @ApiOkResponse({
     type: DrugTempDto,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
-  @Roles("admin")
-  @Put("drug_temp/:drug_temp_id")
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin')
+  @Put('drug_temp/:drug_temp_id')
   async updateDrugTemp(
-    @Param("drug_temp_id") drugTempId: string,
+    @Param('drug_temp_id') drugTempId: string,
     @Body() userData: UpdateDrugTempDto,
     @User() user: UserDto,
   ): Promise<DrugTempDto> {
-    return this.drugTempService.update(drugTempId,userData, user);
+    return this.drugTempService.update(drugTempId, userData, user);
   }
 
   @ApiBearerAuth()
   @ApiOkResponse()
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
-  @Roles("admin")
-  @Delete("drug_temp/:drug_temp_id")
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('admin')
+  @Delete('drug_temp/:drug_temp_id')
   async deleteDrugTemp(
     @Param('drug_temp_id') drugTempId: string,
     @User() user: UserDto,
@@ -99,15 +116,15 @@ export class DrugTempController {
   @ApiOkResponse({
     type: DrugTempDto,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('admin')
-  @Post("drug_temp/:drug_temp_id/genotype")
+  @Post('drug_temp/:drug_temp_id/genotype')
   async createGenotypeDrugTemp(
     @Param('drug_temp_id') drugTempId: string,
     @Body() userData: CreateGenotypeDrugTempDto,
     @User() user: UserDto,
   ): Promise<GenotypeDrugTempDto> {
-    return this.drugTempService.createGenotype(drugTempId,userData, user);
+    return this.drugTempService.createGenotype(drugTempId, userData, user);
   }
 
   @ApiBearerAuth()
@@ -115,15 +132,19 @@ export class DrugTempController {
     type: DrugTempDto,
     isArray: true,
   })
-  @UseGuards(AuthGuard('jwt'),RolesGuard)
-  @Roles('user', 'expert', 'admin')
-  @Get("drug_temp/:drug_temp_id/genotype")
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('user', 'expert', 'admin', 'expertboss')
+  @Get('drug_temp/:drug_temp_id/genotype')
   async getAllGenotypeDrugTemp(
     @Param('drug_temp_id') drugTempId: string,
     @Query() filterDto: FilterGenotypeDrugTempDto,
     @User() user: UserDto,
   ): Promise<GenotypeDrugTempDto[]> {
-    const result = await this.drugTempService.getAllGenotypeDrugTemp(drugTempId,filterDto, user)
+    const result = await this.drugTempService.getAllGenotypeDrugTemp(
+      drugTempId,
+      filterDto,
+      user,
+    );
     return result;
   }
 }

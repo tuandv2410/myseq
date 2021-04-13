@@ -25,89 +25,100 @@ export class UserService {
     private logger: LoggerService,
     @InjectMapper()
     private mapper: AutoMapper,
-  ){
-    this.mapper.createMap(UserEntity,UserDto);
+  ) {
+    this.mapper.createMap(UserEntity, UserDto);
   }
 
-  async getAll(
-    filterDto: FilterUserDto,
-    user: UserDto,
-  ): Promise<UserDto[]>{
-    try{
-      const result = await this.userRepo.find({where:filterDto})
-      this.logger.log(`User ${user.id} get users by filter: ${filterDto}`)
-      return this.mapper.mapArray(result, UserDto)
-    }catch(error) {
+  async getAll(filterDto: FilterUserDto, user: UserDto): Promise<UserDto[]> {
+    try {
+      const result = await this.userRepo.find({ where: filterDto });
+      this.logger.log(`User ${user.id} get users by filter: ${filterDto}`);
+      return this.mapper.mapArray(result, UserDto);
+    } catch (error) {
       this.logger.error(error);
-      throw new HttpException("get Users fail!", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'get Users fail!',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
-    
   }
 
-  async getByAccount(
-    account: string,
-  ): Promise<UserEntity>{
-    try{
-      const found = await this.userRepo.findOne({where:{account:account}})
-      
-      if(!found){
-        throw new HttpException(`User with account ${account} not found`, HttpStatus.NOT_FOUND);
+  async getByAccount(account: string): Promise<UserEntity> {
+    try {
+      const found = await this.userRepo.findOne({
+        where: { account: account },
+      });
+
+      if (!found) {
+        throw new HttpException(
+          `User with account ${account} not found`,
+          HttpStatus.NOT_FOUND,
+        );
       }
       return found;
-    }catch(error) {
+    } catch (error) {
       this.logger.error(error);
-      throw new HttpException("get User fail!", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'get User fail!',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
-  async getById(
-    id: string,
-    user: UserDto
-  ): Promise<UserDto>{
-    try{
+  async getById(id: string, user: UserDto): Promise<UserDto> {
+    try {
       const found = await this.userRepo.findOne(id);
       if (!found) {
-        throw new HttpException(`User with ID ${id} not found`, HttpStatus.NOT_FOUND);
+        throw new HttpException(
+          `User with ID ${id} not found`,
+          HttpStatus.NOT_FOUND,
+        );
       }
-      this.logger.log(`User ${user.id} get user by ID : ${id}`)
-      
-      return this.mapper.map(found,UserDto);
-    }catch(error) {
+      this.logger.log(`User ${user.id} get user by ID : ${id}`);
+
+      return this.mapper.map(found, UserDto);
+    } catch (error) {
       this.logger.error(error);
-      throw new HttpException("get User fail!", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'get User fail!',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
-    
   }
 
-  async create(
-    createDto: CreateUserDto
-  ): Promise<UserDto>{
+  async create(createDto: CreateUserDto): Promise<UserDto> {
     const salt = await bcrypt.genSalt();
     createDto.password = await this.hashPassword(createDto.password, salt);
-    const data = {salt, ...createDto};
-    try{
+    const data = { salt, ...createDto };
+    try {
       const result = await this.userRepo.save(data);
       const saved = plainToClass(UserEntity, result);
       return this.mapper.map(saved, UserDto);
-    }catch (error) {
-      if (error.code === '23505') { // duplicate username
+    } catch (error) {
+      if (error.code === '23505') {
+        // duplicate username
         this.logger.error(error);
-        throw new HttpException("Username already exists!", HttpStatus.CONFLICT);
+        throw new HttpException(
+          'Username already exists!',
+          HttpStatus.CONFLICT,
+        );
       } else {
         this.logger.error(error);
-        throw new HttpException("create User fail!", HttpStatus.INTERNAL_SERVER_ERROR);
+        throw new HttpException(
+          'create User fail!',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
       }
     }
-    
   }
 
   async update(
     id: string,
     updateDto: UpdateUserDto,
-    user: UserDto
-  ): Promise<UserDto>{
+    user: UserDto,
+  ): Promise<UserDto> {
     await this.getById(id, user);
-    await this.userRepo.update(id,updateDto);
+    await this.userRepo.update(id, updateDto);
     return await this.getById(id, user);
   }
 
@@ -115,11 +126,14 @@ export class UserService {
     const { account, password } = userData;
 
     const user = await this.getByAccount(account);
-    
+
     const areEqual = await user.validatePassword(password);
 
     if (!areEqual) {
-      throw new HttpException("Wrong username or password!", HttpStatus.BAD_REQUEST);
+      throw new HttpException(
+        'Wrong username or password!',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     return user;
@@ -132,17 +146,17 @@ export class UserService {
     };
     try {
       const { account, password, newPassword } = userData;
-      const user = await this.login({account,password});
+      const user = await this.login({ account, password });
       if (!user) {
         return {
           succes: false,
-          message: "wrong user or password",
-        }
+          message: 'wrong user or password',
+        };
       }
       user.salt = await bcrypt.genSalt();
       user.password = await this.hashPassword(newPassword, user.salt);
       await user.save();
-    }catch (err) {
+    } catch (err) {
       status = {
         succes: false,
         message: err,
@@ -161,9 +175,12 @@ export class UserService {
       await user.save();
       this.logger.log(`New password ${newPassword} for User ${user.id}`);
       return newPassword;
-    } catch(error){
+    } catch (error) {
       this.logger.error(error);
-      throw new HttpException("generate new password fail!", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        'generate new password fail!',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 

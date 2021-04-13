@@ -171,6 +171,8 @@ export class DiseaseCategoryService {
             ) {
               aTemp.diseaseReportTrans = {
                 reportId: diseaseReport[0].id,
+                new: diseaseReport[0].new,
+                approve: diseaseReport[0].approve,
                 draftConclusion:
                   diseaseReport[0].diseaseReportTrans[k].draftConclusion,
                 finalConclusion:
