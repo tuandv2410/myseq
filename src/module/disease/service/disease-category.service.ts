@@ -20,6 +20,7 @@ import {
   ReportListDiseaseTemp,
   ReportListDiseaseDto,
 } from '../dto/disease-category/report-list.dto';
+import { DiseaseCategoryByUserDto } from '../dto/disease-category/disease-category-by-user.dto';
 
 @Injectable()
 export class DiseaseCategoryService {
@@ -80,6 +81,64 @@ export class DiseaseCategoryService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  async getAllByUser(
+    userId: string,
+    filterDto: FilterDiseaseCategoryDto,
+    user: UserDto,
+  ): Promise<DiseaseCategoryByUserDto[]> {
+    let ans: DiseaseCategoryByUserDto[] = [];
+    const listCategory = await this.getAll(filterDto, user);
+    for (let i = 0; i < listCategory.length; i++) {
+      const aCategory = new DiseaseCategoryByUserDto();
+      const checkResult = await this.checkNewInCategory(
+        listCategory[i].id,
+        userId,
+      );
+
+      aCategory.new = checkResult.new;
+      aCategory.missing = checkResult.missing;
+      aCategory.pending = checkResult.pending;
+      aCategory.id = listCategory[i].id;
+      aCategory.diseaseCategoryTrans = listCategory[i].diseaseCategoryTrans;
+      ans = [...ans, aCategory];
+    }
+    return ans;
+  }
+
+  async checkNewInCategory(
+    categoryId: string,
+    userId: string,
+  ): Promise<{ new: boolean; missing: boolean; pending: boolean }> {
+    const ans = { new: false, missing: false, pending: false };
+    const diseaseTemps = await this.diseaseTempRepo.find({
+      where: { diseaseCategory: categoryId },
+    });
+    for (let i = 0; i < diseaseTemps.length; i++) {
+      const diseaseReport: DiseaseReportEntity = await this.diseaseReportRepo.findOne(
+        {
+          where: {
+            diseaseTemp: diseaseTemps[i].id,
+            user: userId,
+          },
+          relations: ['diseaseReportTrans'],
+        },
+      );
+      if (!diseaseReport.diseaseReportTrans[0].draftConclusion) {
+        ans.missing = true;
+      }
+      if (
+        diseaseReport.new &&
+        diseaseReport.diseaseReportTrans[0].finalConclusion
+      ) {
+        ans.new = true;
+      }
+      if (!diseaseReport.approve) {
+        ans.pending = true;
+      }
+    }
+    return ans;
   }
 
   async getById(
@@ -152,7 +211,7 @@ export class DiseaseCategoryService {
             relations: ['genotypeDiseaseReports', 'diseaseReportTrans'],
           },
         );
-        let aTemp = new ReportListDiseaseTemp();
+        const aTemp = new ReportListDiseaseTemp();
         aTemp.tempId = diseaseTemps[i].id;
         for (let j = 0; j < diseaseTemps[i].diseaseTempTrans.length; j++) {
           if (
@@ -252,7 +311,7 @@ export class DiseaseCategoryService {
       const diseaseCategory = new DiseaseCategoryEntity();
       await diseaseCategory.save();
       for (let i = 0; i < diseaseCategoryTrans.length; i++) {
-        let newDiseaseCategoryTrans = new DiseaseCategoryTransEntity();
+        const newDiseaseCategoryTrans = new DiseaseCategoryTransEntity();
         newDiseaseCategoryTrans.description =
           diseaseCategoryTrans[i].description;
         newDiseaseCategoryTrans.language = diseaseCategoryTrans[i].language;

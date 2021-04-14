@@ -21,6 +21,7 @@ import {
   ReportListNutritionTemp,
   ReportListNutritionDto,
 } from '../dto/nutrition-category/report-list.dto';
+import { NutritionCategoryByUserDto } from '../dto/nutrition-category/nutrition-category-by-user.dto';
 
 @Injectable()
 export class NutritionCategoryService {
@@ -90,6 +91,64 @@ export class NutritionCategoryService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  async getAllByUser(
+    userId: string,
+    filterDto: FilterNutritionCategoryDto,
+    user: UserDto,
+  ): Promise<NutritionCategoryByUserDto[]> {
+    let ans: NutritionCategoryByUserDto[] = [];
+    const listCategory = await this.getAll(filterDto, user);
+    for (let i = 0; i < listCategory.length; i++) {
+      const aCategory = new NutritionCategoryByUserDto();
+      const checkResult = await this.checkNewInCategory(
+        listCategory[i].id,
+        userId,
+      );
+      aCategory.new = checkResult.new;
+      aCategory.missing = checkResult.missing;
+      aCategory.pending = checkResult.pending;
+      aCategory.id = listCategory[i].id;
+      aCategory.nutritionCategoryTrans = listCategory[i].nutritionCategoryTrans;
+      ans = [...ans, aCategory];
+    }
+
+    return ans;
+  }
+
+  async checkNewInCategory(
+    categoryId: string,
+    userId: string,
+  ): Promise<{ new: boolean; missing: boolean; pending: boolean }> {
+    const ans = { new: false, missing: false, pending: false };
+    const nutritionTemps = await this.nutritionTempRepo.find({
+      where: { nutritionCategory: categoryId },
+    });
+    for (let i = 0; i < nutritionTemps.length; i++) {
+      const nutritionReport: NutritionReportEntity = await this.nutritionReportRepo.findOne(
+        {
+          where: {
+            nutritionTemp: nutritionTemps[i].id,
+            user: userId,
+          },
+          relations: ['nutritionReportTrans'],
+        },
+      );
+      if (
+        nutritionReport.new &&
+        nutritionReport.nutritionReportTrans[0].finalConclusion
+      ) {
+        ans.new = true;
+      }
+      if (!nutritionReport.approve) {
+        ans.pending = true;
+      }
+      if (!nutritionReport.nutritionReportTrans[0].draftConclusion) {
+        ans.missing = true;
+      }
+    }
+    return ans;
   }
 
   async getById(
@@ -164,7 +223,7 @@ export class NutritionCategoryService {
             relations: ['genotypeNutritionReports', 'nutritionReportTrans'],
           },
         );
-        let aTemp = new ReportListNutritionTemp();
+        const aTemp = new ReportListNutritionTemp();
         aTemp.tempId = nutritionTemps[i].id;
         for (let j = 0; j < nutritionTemps[i].nutritionTempTrans.length; j++) {
           if (
@@ -269,7 +328,7 @@ export class NutritionCategoryService {
       const nutritionCategory = new NutritionCategoryEntity();
       await nutritionCategory.save();
       for (let i = 0; i < nutritionCategoryTrans.length; i++) {
-        let newNutritionCategoryTrans = new NutritionCategoryTransEntity();
+        const newNutritionCategoryTrans = new NutritionCategoryTransEntity();
         newNutritionCategoryTrans.description =
           nutritionCategoryTrans[i].description;
         newNutritionCategoryTrans.language = nutritionCategoryTrans[i].language;

@@ -199,7 +199,7 @@ export class DiseaseReportService {
       diseaseReport.diseaseTemp = diseaseTemp;
       await diseaseReport.save();
       for (let i = 0; i < diseaseReportTrans.length; i++) {
-        let newDiseaseReportTrans = new DiseaseReportTransEntity();
+        const newDiseaseReportTrans = new DiseaseReportTransEntity();
         newDiseaseReportTrans.language = diseaseReportTrans[i].language;
         newDiseaseReportTrans.name = diseaseReportTrans[i].name;
         newDiseaseReportTrans.draftConclusion =
@@ -353,7 +353,7 @@ export class DiseaseReportService {
       genotypeDiseaseReport.diseaseReport = diseaseReport;
       await genotypeDiseaseReport.save();
       for (let i = 0; i < createGenotypeDiseaseReportTrans.length; i++) {
-        let genotypeDiseaseReportTrans = new GenotypeDiseaseReportTransEntity();
+        const genotypeDiseaseReportTrans = new GenotypeDiseaseReportTransEntity();
         genotypeDiseaseReportTrans.geneSeq =
           createGenotypeDiseaseReportTrans[i].geneSeq;
         genotypeDiseaseReportTrans.language =

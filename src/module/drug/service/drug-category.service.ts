@@ -20,6 +20,7 @@ import {
   ReportListDrugTemp,
   ReportListDrugDto,
 } from '../dto/drug-category/report-list.dto';
+import { DrugCategoryByUserDto } from '../dto/drug-category/drug-category-by-user.dto';
 
 @Injectable()
 export class DrugCategoryService {
@@ -80,6 +81,59 @@ export class DrugCategoryService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+  }
+
+  async getAllByUser(
+    userId: string,
+    filterDto: FilterDrugCategoryDto,
+    user: UserDto,
+  ): Promise<DrugCategoryByUserDto[]> {
+    let ans: DrugCategoryByUserDto[] = [];
+    const listCategory = await this.getAll(filterDto, user);
+    for (let i = 0; i < listCategory.length; i++) {
+      const aCategory = new DrugCategoryByUserDto();
+      const checkResult = await this.checkNewInCategory(
+        listCategory[i].id,
+        userId,
+      );
+      aCategory.new = checkResult.new;
+      aCategory.missing = checkResult.missing;
+      aCategory.pending = checkResult.pending;
+      aCategory.id = listCategory[i].id;
+      aCategory.drugCategoryTrans = listCategory[i].drugCategoryTrans;
+      ans = [...ans, aCategory];
+    }
+
+    return ans;
+  }
+
+  async checkNewInCategory(
+    categoryId: string,
+    userId: string,
+  ): Promise<{ new: boolean; missing: boolean; pending: boolean }> {
+    const ans = { new: false, missing: false, pending: false };
+    const drugTemps = await this.drugTempRepo.find({
+      where: { drugCategory: categoryId },
+    });
+    for (let i = 0; i < drugTemps.length; i++) {
+      const drugReport: DrugReportEntity = await this.drugReportRepo.findOne({
+        where: {
+          drugTemp: drugTemps[i].id,
+          user: userId,
+        },
+        relations: ['drugReportTrans'],
+      });
+      if (drugReport.new && drugReport.drugReportTrans[0].finalConclusion) {
+        ans.new = true;
+      }
+      if (!drugReport.approve) {
+        ans.pending = true;
+      }
+      if (!drugReport.drugReportTrans[0].draftConclusion) {
+        ans.missing = true;
+      }
+    }
+    return ans;
   }
 
   async getById(
@@ -143,7 +197,7 @@ export class DrugCategoryService {
           where: { drugTemp: drugTemps[i].id, user: userId },
           relations: ['genotypeDrugReports', 'drugReportTrans'],
         });
-        let aTemp = new ReportListDrugTemp();
+        const aTemp = new ReportListDrugTemp();
         aTemp.tempId = drugTemps[i].id;
         for (let j = 0; j < drugTemps[i].drugTempTrans.length; j++) {
           if (drugTemps[i].drugTempTrans[j].language === filterDto.language) {
@@ -238,7 +292,7 @@ export class DrugCategoryService {
       const drugCategory = new DrugCategoryEntity();
       await drugCategory.save();
       for (let i = 0; i < drugCategoryTrans.length; i++) {
-        let newDrugCategoryTrans = new DrugCategoryTransEntity();
+        const newDrugCategoryTrans = new DrugCategoryTransEntity();
         newDrugCategoryTrans.description = drugCategoryTrans[i].description;
         newDrugCategoryTrans.language = drugCategoryTrans[i].language;
         newDrugCategoryTrans.name = drugCategoryTrans[i].name;

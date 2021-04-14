@@ -203,7 +203,7 @@ export class NutritionReportService {
       nutritionReport.nutritionTemp = nutritionTemp;
       await nutritionReport.save();
       for (let i = 0; i < nutritionReportTrans.length; i++) {
-        let newNutritionReportTrans = new NutritionReportTransEntity();
+        const newNutritionReportTrans = new NutritionReportTransEntity();
         newNutritionReportTrans.language = nutritionReportTrans[i].language;
         newNutritionReportTrans.name = nutritionReportTrans[i].name;
         newNutritionReportTrans.draftConclusion =
@@ -356,7 +356,7 @@ export class NutritionReportService {
       genotypeNutritionReport.nutritionReport = nutritionReport;
       await genotypeNutritionReport.save();
       for (let i = 0; i < createGenotypeNutritionReportTrans.length; i++) {
-        let genotypeNutritionReportTrans = new GenotypeNutritionReportTransEntity();
+        const genotypeNutritionReportTrans = new GenotypeNutritionReportTransEntity();
         genotypeNutritionReportTrans.geneSeq =
           createGenotypeNutritionReportTrans[i].geneSeq;
         genotypeNutritionReportTrans.language =

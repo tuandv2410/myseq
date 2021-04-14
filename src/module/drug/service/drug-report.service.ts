@@ -193,7 +193,7 @@ export class DrugReportService {
       drugReport.drugTemp = drugTemp;
       await drugReport.save();
       for (let i = 0; i < drugReportTrans.length; i++) {
-        let newDrugReportTrans = new DrugReportTransEntity();
+        const newDrugReportTrans = new DrugReportTransEntity();
         newDrugReportTrans.language = drugReportTrans[i].language;
         newDrugReportTrans.name = drugReportTrans[i].name;
         newDrugReportTrans.draftConclusion = drugReportTrans[i].draftConclusion;
@@ -339,7 +339,7 @@ export class DrugReportService {
       genotypeDrugReport.drugReport = drugReport;
       await genotypeDrugReport.save();
       for (let i = 0; i < createGenotypeDrugReportTrans.length; i++) {
-        let genotypeDrugReportTrans = new GenotypeDrugReportTransEntity();
+        const genotypeDrugReportTrans = new GenotypeDrugReportTransEntity();
         genotypeDrugReportTrans.geneSeq =
           createGenotypeDrugReportTrans[i].geneSeq;
         genotypeDrugReportTrans.language =
